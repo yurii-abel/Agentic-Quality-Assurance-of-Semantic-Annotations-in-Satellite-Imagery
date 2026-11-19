@@ -1,0 +1,77 @@
+# Solution Space: expert workflows keyed by task type (RS-Agent's Task-Aware Retrieval).
+# Steps name tools from geoburn/agent/tools.py. `on_fail` names a fallback branch.
+burned_area_mapping:
+  status: implemented
+  description: Delineate burned area after a wildfire from optical pre/post imagery; mono-temporal fallback.
+  keywords: burned area burn scar wildfire fire affected outline burned vegetation hectares map scars
+  steps:
+    - {tool: search_scenes, args: {start: "$search_start", end: "$search_end"}, on_fail: report_no_data}
+    - {tool: select_image_pair, args: {event_start: "$event_start", event_end: "$event_end"}, on_fail: post_only}
+    - {tool: load_scenes}
+    - {tool: quality_check, on_fail: check_sar}
+    - {tool: compute_burn_indices}
+    - {tool: segment, args: {model: pixel_ensemble}, on_fail: skip}
+    - {tool: fuse_and_delineate}
+    - {tool: assess_uncertainty}
+    - {tool: summarize_severity}
+    - {tool: validate_against_reference, when: reference_path, args: {reference_path: "$reference_path"}}
+    - {tool: export_results, args: {out_dir: "$out_dir"}}
+  branches:
+    post_only:
+      - {tool: select_post_only, args: {after: "$event_start"}, on_fail: report_no_data}
+    check_sar:
+      - {tool: check_sar_availability, args: {start: "$search_start", end: "$search_end"}}
+      - {tool: report_insufficient_evidence, args: {reason: "optical imagery unusable (cloud / no valid pixels)"}}
+    report_no_data:
+      - {tool: report_insufficient_evidence, args: {reason: "no suitable imagery found"}}
+burn_severity:
+  status: implemented
+  description: Burn severity classes from dNBR (needs pre and post imagery); same pipeline, severity emphasised.
+  keywords: burn severity severity classes damage levels vegetation damage dnbr rdnbr
+  same_as: burned_area_mapping
+local_burned_area:
+  status: implemented
+  description: Burned-area mapping on rasters the user already has (GeoTIFF), e.g. benchmark samples.
+  keywords: local file geotiff raster provided image
+  steps:
+    - {tool: load_local_scene, args: {post_path: "$post_path", pre_path: "$pre_path", cloud_mask: "$cloud_mask", meta: "$meta"}}
+    - {tool: quality_check}
+    - {tool: compute_burn_indices}
+    - {tool: segment, args: {model: pixel_ensemble}, on_fail: skip}
+    - {tool: fuse_and_delineate}
+    - {tool: assess_uncertainty}
+    - {tool: summarize_severity}
+    - {tool: validate_against_reference, when: reference_path, args: {reference_path: "$reference_path", reference_name: "$reference_name", strata_path: "$strata_path"}}
+    - {tool: export_results, args: {out_dir: "$out_dir"}}
+vegetation_change:
+  status: implemented
+  description: Generic vegetation loss between two dates from NDVI difference; cause is not attributed.
+  keywords: vegetation change significantly changed ndvi difference before after compare deforestation clearing
+  steps:
+    - {tool: search_scenes, args: {start: "$search_start", end: "$search_end"}, on_fail: report_no_data}
+    - {tool: select_image_pair, args: {event_start: "$event_start", event_end: "$event_end"}, on_fail: report_no_data}
+    - {tool: load_scenes}
+    - {tool: quality_check, on_fail: report_no_data}
+    - {tool: vegetation_change}
+    - {tool: fuse_and_delineate}
+    - {tool: assess_uncertainty}
+    - {tool: export_results, args: {out_dir: "$out_dir"}}
+  branches:
+    report_no_data:
+      - {tool: report_insufficient_evidence, args: {reason: "no suitable image pair found"}}
+active_fire_detection:
+  status: not_implemented
+  description: Detecting currently burning fire fronts needs thermal anomalies (VIIRS/MODIS FIRMS, Sentinel-3 SLSTR, or S2 SWIR saturation). Different task from burned-area mapping.
+  keywords: active fire burning now hotspots thermal anomaly fire front currently
+flood_mapping:
+  status: not_implemented
+  description: Flood extent from Sentinel-1 backscatter decrease and optical water indices (MNDWI); needs an RTC SAR adapter.
+  keywords: flood flooded inundation water extent
+land_cover_classification:
+  status: not_implemented
+  description: Land cover / land use classification with a trained model or an existing product (ESA WorldCover).
+  keywords: land cover land use classification classify
+building_change:
+  status: not_implemented
+  description: Building / infrastructure change needs VHR imagery and a trained change model; 10-20 m Sentinel data is too coarse.
+  keywords: building infrastructure construction urban change
