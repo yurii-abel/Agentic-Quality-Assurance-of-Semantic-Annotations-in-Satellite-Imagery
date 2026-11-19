@@ -1,0 +1,269 @@
+{
+ "plan": {
+  "query": "Find burned vegetation in this region and estimate the affected area in hectares.",
+  "task_type": "local_burned_area",
+  "task_source": "rules",
+  "context": {
+   "post_path": "/home/claude/geoburn/data/cems_sample/EMSR382_AOI01_01_S2L2A.tiff",
+   "cloud_mask": "/home/claude/geoburn/data/cems_sample/EMSR382_AOI01_01_CM.tif",
+   "reference_path": "/home/claude/geoburn/data/cems_sample/EMSR382_AOI01_01_DEL.tif",
+   "strata_path": "/home/claude/geoburn/data/cems_sample/EMSR382_AOI01_01_GRA.tif",
+   "reference_name": "Copernicus EMS EMSR382 delineation (via CEMS-Wildfire dataset)",
+   "out_dir": "/home/claude/geoburn/runs/emsr382_aoi01_01",
+   "meta": {
+    "source": "CEMS-Wildfire-Dataset@d635dea0 (Sentinel-2 L2A via Sentinel Hub process API)",
+    "time_range": "2019-08-17..2019-10-06 (leastCC mosaic)",
+    "activation": "EMSR382 AOI01",
+    "note": "all bands were delivered resampled to ~10 m; re-gridded here to 20 m UTM"
+   }
+  },
+  "steps": [
+   {
+    "tool": "load_local_scene",
+    "args": {
+     "post_path": "/home/claude/geoburn/data/cems_sample/EMSR382_AOI01_01_S2L2A.tiff",
+     "cloud_mask": "/home/claude/geoburn/data/cems_sample/EMSR382_AOI01_01_CM.tif",
+     "meta": {
+      "source": "CEMS-Wildfire-Dataset@d635dea0 (Sentinel-2 L2A via Sentinel Hub process API)",
+      "time_range": "2019-08-17..2019-10-06 (leastCC mosaic)",
+      "activation": "EMSR382 AOI01",
+      "note": "all bands were delivered resampled to ~10 m; re-gridded here to 20 m UTM"
+     }
+    },
+    "on_fail": null
+   },
+   {
+    "tool": "quality_check",
+    "args": {},
+    "on_fail": null
+   },
+   {
+    "tool": "compute_burn_indices",
+    "args": {},
+    "on_fail": null
+   },
+   {
+    "tool": "segment",
+    "args": {
+     "model": "pixel_ensemble"
+    },
+    "on_fail": "skip"
+   },
+   {
+    "tool": "fuse_and_delineate",
+    "args": {},
+    "on_fail": null
+   },
+   {
+    "tool": "assess_uncertainty",
+    "args": {},
+    "on_fail": null
+   },
+   {
+    "tool": "summarize_severity",
+    "args": {},
+    "on_fail": null
+   },
+   {
+    "tool": "validate_against_reference",
+    "args": {
+     "reference_path": "/home/claude/geoburn/data/cems_sample/EMSR382_AOI01_01_DEL.tif",
+     "reference_name": "Copernicus EMS EMSR382 delineation (via CEMS-Wildfire dataset)",
+     "strata_path": "/home/claude/geoburn/data/cems_sample/EMSR382_AOI01_01_GRA.tif"
+    },
+    "on_fail": null
+   },
+   {
+    "tool": "export_results",
+    "args": {
+     "out_dir": "/home/claude/geoburn/runs/emsr382_aoi01_01"
+    },
+    "on_fail": null
+   }
+  ],
+  "status": "ok",
+  "knowledge": [
+   "burn_indices#6"
+  ],
+  "workflow": "local_burned_area",
+  "branches": {}
+ },
+ "trace": [
+  {
+   "tool": "load_local_scene",
+   "args": {
+    "post_path": "/home/claude/geoburn/data/cems_sample/EMSR382_AOI01_01_S2L2A.tiff",
+    "cloud_mask": "/home/claude/geoburn/data/cems_sample/EMSR382_AOI01_01_CM.tif",
+    "meta": {
+     "source": "CEMS-Wildfire-Dataset@d635dea0 (Sentinel-2 L2A via Sentinel Hub process API)",
+     "time_range": "2019-08-17..2019-10-06 (leastCC mosaic)",
+     "activation": "EMSR382 AOI01",
+     "note": "all bands were delivered resampled to ~10 m; re-gridded here to 20 m UTM"
+    }
+   },
+   "status": "ok",
+   "observation": {
+    "shape": [
+     697,
+     566
+    ],
+    "resolution_m": 20,
+    "has_pre": false,
+    "grid_crs": "EPSG:32628"
+   },
+   "seconds": 0.92
+  },
+  {
+   "tool": "quality_check",
+   "args": {},
+   "status": "ok",
+   "observation": {
+    "mode": "monotemporal",
+    "post": {
+     "valid_fraction": 0.8549,
+     "cloud_fraction": 0.13514414520687054,
+     "usable": true
+    }
+   },
+   "seconds": 0.0
+  },
+  {
+   "tool": "compute_burn_indices",
+   "args": {},
+   "status": "ok",
+   "observation": {
+    "mode": "monotemporal",
+    "threshold": {
+     "index": "char composite z(-NBR, BAIS2, MIRBI)",
+     "value": 0.349,
+     "source": "scene-adaptive (Otsu); no pre-fire image"
+    },
+    "candidate_fraction": 0.3331
+   },
+   "seconds": 0.05
+  },
+  {
+   "tool": "segment",
+   "args": {
+    "model": "pixel_ensemble"
+   },
+   "status": "ok",
+   "observation": {
+    "model": "pixel-ensemble (weakly supervised, HistGradientBoosting)",
+    "seeds": {
+     "burned": 46227,
+     "unburned": 95635
+    },
+    "independent_of_baseline": false,
+    "segment_fraction": 0.2971
+   },
+   "seconds": 4.28
+  },
+  {
+   "tool": "fuse_and_delineate",
+   "args": {},
+   "status": "ok",
+   "observation": {
+    "method": "hybrid (spectral x segmentation, hysteresis)",
+    "regions": 84,
+    "dropped_below_mmu": 77,
+    "burned_area_ha": 3691.1,
+    "aoi_valid_area_ha": 11718.4
+   },
+   "seconds": 0.06
+  },
+  {
+   "tool": "assess_uncertainty",
+   "args": {},
+   "status": "ok",
+   "observation": {
+    "confidence": {
+     "mean_confidence_burned": 0.535,
+     "share_low_confidence": 0.385,
+     "histogram": [
+      25142,
+      6842,
+      301,
+      948,
+      2303,
+      6200,
+      7885,
+      8249,
+      11467,
+      22940
+     ]
+    },
+    "cmf_final_F": 0.0208,
+    "cmf_arbitration": {
+     "F_a": 0.0274,
+     "F_b": 0.0277,
+     "delta": 0.0003,
+     "n_chips": 46,
+     "b_win_rate": 0.37,
+     "preferred": "b",
+     "a": "spectral baseline",
+     "b": "segmentation model"
+    },
+    "n_polygons": 84
+   },
+   "seconds": 0.63
+  },
+  {
+   "tool": "summarize_severity",
+   "args": {},
+   "status": "ok",
+   "observation": {
+    "available": false,
+    "reason": "burn severity needs a pre-fire image (dNBR); only burned extent is reported"
+   },
+   "seconds": 0.0
+  },
+  {
+   "tool": "validate_against_reference",
+   "args": {
+    "reference_path": "/home/claude/geoburn/data/cems_sample/EMSR382_AOI01_01_DEL.tif",
+    "reference_name": "Copernicus EMS EMSR382 delineation (via CEMS-Wildfire dataset)",
+    "strata_path": "/home/claude/geoburn/data/cems_sample/EMSR382_AOI01_01_GRA.tif"
+   },
+   "status": "ok",
+   "observation": {
+    "f1": {
+     "spectral_baseline": 0.6737,
+     "segmentation_model": 0.6467,
+     "final_hybrid": 0.6746
+    },
+    "iou": {
+     "spectral_baseline": 0.5079,
+     "segmentation_model": 0.4778,
+     "final_hybrid": 0.509
+    }
+   },
+   "seconds": 0.32
+  },
+  {
+   "tool": "export_results",
+   "args": {
+    "out_dir": "/home/claude/geoburn/runs/emsr382_aoi01_01"
+   },
+   "status": "ok",
+   "observation": {
+    "dir": "/home/claude/geoburn/runs/emsr382_aoi01_01",
+    "files": [
+     "burned_areas.geojson",
+     "classes.tif",
+     "layers.tif",
+     "map",
+     "regions.csv",
+     "report.md",
+     "summary.json",
+     "trace.json"
+    ],
+    "map": "/home/claude/geoburn/runs/emsr382_aoi01_01/map/index.html"
+   },
+   "seconds": 3.25
+  }
+ ],
+ "result": {
+  "status": "completed"
+ }
+}

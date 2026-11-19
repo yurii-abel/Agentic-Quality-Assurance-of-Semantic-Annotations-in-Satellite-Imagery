@@ -1,0 +1,252 @@
+{
+ "generated_utc": "2026-11-19T02:40:07+00:00",
+ "software": "geoburn 0.1.0",
+ "query": "Find burned vegetation in this region and estimate the affected area in hectares.",
+ "task_type": "local_burned_area",
+ "workflow": "local_burned_area",
+ "mode": "monotemporal",
+ "method": "hybrid (spectral x segmentation, hysteresis)",
+ "analysis_resolution_m": 20,
+ "crs": "EPSG:32628",
+ "burned_area_ha": 3691.1,
+ "regions": 84,
+ "valid_area_ha": 11718.4,
+ "unobserved_area_ha": 4061.7,
+ "threshold": {
+  "index": "char composite z(-NBR, BAIS2, MIRBI)",
+  "value": 0.349,
+  "source": "scene-adaptive (Otsu); no pre-fire image"
+ },
+ "severity_area_ha": null,
+ "confidence": {
+  "mean_confidence_burned": 0.535,
+  "share_low_confidence": 0.385,
+  "histogram": [
+   25142,
+   6842,
+   301,
+   948,
+   2303,
+   6200,
+   7885,
+   8249,
+   11467,
+   22940
+  ]
+ },
+ "cmf_final": {
+  "F": 0.02078375563194806,
+  "n_chips": 44
+ },
+ "cmf_arbitration": {
+  "F_a": 0.0274,
+  "F_b": 0.0277,
+  "delta": 0.0003,
+  "n_chips": 46,
+  "b_win_rate": 0.37,
+  "preferred": "b",
+  "a": "spectral baseline",
+  "b": "segmentation model"
+ },
+ "segmentation": {
+  "model": "pixel-ensemble (weakly supervised, HistGradientBoosting)",
+  "members": 6,
+  "seeds": {
+   "burned": 46227,
+   "unburned": 95635
+  },
+  "independent_of_baseline": false
+ },
+ "quality": {
+  "post": {
+   "valid_fraction": 0.8549,
+   "cloud_fraction": 0.13514414520687054,
+   "usable": true
+  }
+ },
+ "provenance": {
+  "post": {
+   "id": "/home/claude/geoburn/data/cems_sample/EMSR382_AOI01_01_S2L2A.tiff",
+   "provider": "local",
+   "analysis_res_m": 20,
+   "bbox4326": [
+    -15.763778600999956,
+    27.96566434500005,
+    -15.649711279999963,
+    28.090828762000058
+   ],
+   "cloud_fraction": 0.13514414520687054,
+   "source_crs": "EPSG:4326",
+   "source_res_m": 9.99,
+   "source_shape": [
+    1380,
+    1129
+   ],
+   "source": "CEMS-Wildfire-Dataset@d635dea0 (Sentinel-2 L2A via Sentinel Hub process API)",
+   "time_range": "2019-08-17..2019-10-06 (leastCC mosaic)",
+   "activation": "EMSR382 AOI01",
+   "note": "all bands were delivered resampled to ~10 m; re-gridded here to 20 m UTM"
+  },
+  "pre": null
+ },
+ "validation": {
+  "reference": "Copernicus EMS EMSR382 delineation (via CEMS-Wildfire dataset)",
+  "resolution_m": 20,
+  "methods": {
+   "spectral_baseline": {
+    "precision": 0.7463,
+    "recall": 0.6139,
+    "f1": 0.6737,
+    "iou": 0.5079,
+    "area_pred_ha": 3903.2,
+    "area_ref_ha": 4745.12,
+    "area_error_pct": -17.7429,
+    "boundary_f1": 0.2286
+   },
+   "segmentation_model": {
+    "precision": 0.764,
+    "recall": 0.5605,
+    "f1": 0.6467,
+    "iou": 0.4778,
+    "area_pred_ha": 3481.36,
+    "area_ref_ha": 4745.12,
+    "area_error_pct": -26.6328,
+    "boundary_f1": 0.2363
+   },
+   "final_hybrid": {
+    "precision": 0.771,
+    "recall": 0.5997,
+    "f1": 0.6746,
+    "iou": 0.509,
+    "area_pred_ha": 3691.08,
+    "area_ref_ha": 4745.12,
+    "area_error_pct": -22.2131,
+    "boundary_f1": 0.2743
+   }
+  },
+  "calibration_p_final": {
+   "ece": 0.1618,
+   "table": [
+    {
+     "bin": "0.0-0.1",
+     "n": 166543,
+     "mean_score": 0.015,
+     "observed_burned": 0.212
+    },
+    {
+     "bin": "0.1-0.2",
+     "n": 9652,
+     "mean_score": 0.148,
+     "observed_burned": 0.271
+    },
+    {
+     "bin": "0.2-0.3",
+     "n": 11545,
+     "mean_score": 0.253,
+     "observed_burned": 0.423
+    },
+    {
+     "bin": "0.3-0.4",
+     "n": 8685,
+     "mean_score": 0.345,
+     "observed_burned": 0.483
+    },
+    {
+     "bin": "0.4-0.5",
+     "n": 7043,
+     "mean_score": 0.45,
+     "observed_burned": 0.435
+    },
+    {
+     "bin": "0.5-0.6",
+     "n": 7777,
+     "mean_score": 0.551,
+     "observed_burned": 0.501
+    },
+    {
+     "bin": "0.6-0.7",
+     "n": 6646,
+     "mean_score": 0.649,
+     "observed_burned": 0.475
+    },
+    {
+     "bin": "0.7-0.8",
+     "n": 9394,
+     "mean_score": 0.755,
+     "observed_burned": 0.545
+    },
+    {
+     "bin": "0.8-0.9",
+     "n": 9021,
+     "mean_score": 0.847,
+     "observed_burned": 0.621
+    },
+    {
+     "bin": "0.9-1.0",
+     "n": 56654,
+     "mean_score": 0.974,
+     "observed_burned": 0.895
+    }
+   ]
+  },
+  "uncertainty_vs_error": {
+   "overall_error_rate": 0.2342,
+   "q50": {
+    "error_rate_above": 0.331,
+    "error_rate_below": 0.1375
+   },
+   "q80": {
+    "error_rate_above": 0.418,
+    "error_rate_below": 0.1883
+   },
+   "q95": {
+    "error_rate_above": 0.4261,
+    "error_rate_below": 0.2241
+   }
+  },
+  "cmf_reference_vs_final": {
+   "F_a": -0.0082,
+   "F_b": 0.0202,
+   "delta": 0.0284,
+   "n_chips": 45,
+   "b_win_rate": 0.778,
+   "preferred": "b"
+  },
+  "cmf_corruption_controls": {
+   "dilate": {
+    "detection_rate": 0.615,
+    "n_chips": 13
+   },
+   "erode": {
+    "detection_rate": 0.923,
+    "n_chips": 13
+   },
+   "shift": {
+    "detection_rate": 1.0,
+    "n_chips": 13
+   }
+  },
+  "recall_by_reference_class": {
+   "0": {
+    "area_ha": 6913.8,
+    "predicted_burned_share": 0.121
+   },
+   "2": {
+    "area_ha": 1097.7,
+    "predicted_burned_share": 0.084
+   },
+   "3": {
+    "area_ha": 2968.7,
+    "predicted_burned_share": 0.684
+   },
+   "4": {
+    "area_ha": 738.2,
+    "predicted_burned_share": 0.995
+   }
+  }
+ },
+ "knowledge_used": [
+  "burn_indices#6"
+ ],
+ "result_kind": "model prediction compared against a reference product"
+}
