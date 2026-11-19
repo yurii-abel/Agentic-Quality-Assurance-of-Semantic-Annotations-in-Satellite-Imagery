@@ -1,0 +1,33 @@
+# All thresholds are defaults, not universal truths. Override per ecosystem / sensor.
+cache_dir: ${GEOBURN_CACHE:-.geoburn_cache}
+analysis:
+  resolution_m: 20          # B11/B12 are 20 m native -> products are reported at 20 m
+  min_mapping_unit_ha: 1.0  # polygons smaller than this are dropped (and counted)
+  max_cloud_cover: 30
+  pre_window_days: 60
+  post_window_days: 45
+thresholds:
+  # dNBR break points proposed by Key & Benson (FIREMON) as published by USGS. Unscaled units.
+  dnbr_severity: {unburned: 0.10, low: 0.27, moderate_low: 0.44, moderate_high: 0.66}
+  dnbr_burned: 0.10          # lower bound used for burned / unburned (bi-temporal)
+  dndvi_min: 0.05            # require some vegetation loss too
+  adaptive: true             # refine the burned threshold per scene with Otsu inside [min,max]
+  adaptive_range: [0.08, 0.30]
+  mono_seed_quantile: 0.92   # mono-temporal: strict seeds from the char-index distribution
+providers:
+  earth_search:
+    kind: stac
+    url: https://earth-search.aws.element84.com/v1
+    collection: sentinel-2-l2a
+    auth: none
+    assets: {blue: blue, green: green, red: red, rededge1: rededge1, rededge2: rededge2,
+             rededge3: rededge3, nir: nir, nir08: nir08, swir16: swir16, swir22: swir22, scl: scl}
+  cdse:
+    kind: stac
+    url: https://stac.dataspace.copernicus.eu/v1
+    collection: sentinel-2-l2a
+    auth: s3                 # needs CDSE_S3_ACCESS_KEY / CDSE_S3_SECRET_KEY in the environment
+    assets: {blue: B02_10m, green: B03_10m, red: B04_10m, rededge1: B05_20m, rededge2: B06_20m,
+             rededge3: B07_20m, nir: B08_10m, nir08: B8A_20m, swir16: B11_20m, swir22: B12_20m, scl: SCL_20m}
+default_provider: earth_search
+segmenter: {members: 6, samples_per_member: 20000, seed: 7}
