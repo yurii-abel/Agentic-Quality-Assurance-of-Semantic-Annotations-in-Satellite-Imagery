@@ -1,0 +1,47 @@
+# Tool-implicit queries (no tool is named in the text). Evaluated against planned trajectories.
+- query: "Find burned vegetation in bbox -15.76,27.96,-15.65,28.09 after the wildfire of 2019-08-17 and estimate the affected area in hectares."
+  task: burned_area_mapping
+  tools: [search_scenes, select_image_pair, load_scenes, quality_check, compute_burn_indices, segment, fuse_and_delineate, assess_uncertainty, summarize_severity, export_results]
+  params: {out_dir: /tmp/x}
+  args: {search_scenes.start: "2019-06-18", select_image_pair.event_start: "2019-08-17", segment.model: pixel_ensemble}
+- query: "Compare satellite imagery before and after the wildfire (2021-08-03 to 2021-08-10) in 23.2,38.7,23.5,39.0 and outline the burned areas."
+  task: burned_area_mapping
+  tools: [search_scenes, select_image_pair, load_scenes, quality_check, compute_burn_indices, segment, fuse_and_delineate, assess_uncertainty, summarize_severity, export_results]
+  params: {out_dir: /tmp/x}
+  args: {select_image_pair.event_start: "2021-08-03", select_image_pair.event_end: "2021-08-10", search_scenes.end: "2021-09-24"}
+- query: "Analyze this geographical area and identify all areas affected by wildfires during the last three months."
+  task: burned_area_mapping
+  status: needs_input
+- query: "Identify all areas affected by wildfires during the last three months in -8.3,39.6,-8.0,39.9"
+  task: burned_area_mapping
+  tools: [search_scenes, select_image_pair, load_scenes, quality_check, compute_burn_indices, segment, fuse_and_delineate, assess_uncertainty, summarize_severity, export_results]
+  params: {out_dir: /tmp/x}
+  args: {select_image_pair.event_start: "2026-08-21", search_scenes.end: "2026-11-19"}
+- query: "How badly was the forest damaged? Show levels of vegetation damage for -120.5,38.6,-120.1,38.9 fire started 2021-08-14"
+  task: burn_severity
+  tools: [search_scenes, select_image_pair, load_scenes, quality_check, compute_burn_indices, segment, fuse_and_delineate, assess_uncertainty, summarize_severity, export_results]
+  params: {out_dir: /tmp/x}
+- query: "Identify areas where vegetation has significantly changed between 2023-05-01 and 2023-09-01 in 10.1,45.1,10.3,45.3"
+  task: vegetation_change
+  tools: [search_scenes, select_image_pair, load_scenes, quality_check, vegetation_change, fuse_and_delineate, assess_uncertainty, export_results]
+  params: {out_dir: /tmp/x}
+- query: "Show me the difference between the satellite images acquired before and after the event."
+  task: vegetation_change
+  status: needs_input
+- query: "Is anything burning right now around 21.5,37.5,21.9,37.9? Show hotspots."
+  task: active_fire_detection
+  status: not_implemented
+- query: "Map the flood extent after the storm of 2024-10-29 in -0.5,39.3,-0.3,39.5"
+  task: flood_mapping
+  status: not_implemented
+- query: "Which buildings were destroyed in 2023-08-08 in -156.69,20.86,-156.66,20.89?"
+  task: building_change
+  status: not_implemented
+- query: "Outline the burn scar in my image"
+  task: local_burned_area
+  params: {post_path: /data/post.tif, out_dir: /tmp/x}
+  tools: [load_local_scene, quality_check, compute_burn_indices, segment, fuse_and_delineate, assess_uncertainty, summarize_severity, export_results]
+  args: {load_local_scene.post_path: /data/post.tif}
+- query: "Classify land cover for 2.1,41.3,2.3,41.5 in 2024-06-01"
+  task: land_cover_classification
+  status: not_implemented
